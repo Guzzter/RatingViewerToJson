@@ -23,11 +23,11 @@ namespace RatingViewerToJson
         /// Saves a copy for the archive with date prefix: 2022-01-sga-rating.json
         /// </summary>
         [FunctionName("RatingViewerToArchiveFileJson")]
-        public async Task Run([TimerTrigger("0 12 1 * *", RunOnStartup = true)] TimerInfo t, ILogger log)
+        public async Task Run([TimerTrigger("0 0 12 1 * *", RunOnStartup = true)] TimerInfo t, ILogger log)
         {
             var fileName = $"{DateTime.Now.ToString("yyyy-MM", DateTimeFormatInfo.InvariantInfo)}-sga-rating.json";
 
-            // At 12:00 on day-of-month 1 (https://crontab.guru/)
+            // 0 0 12 1 * * At 12:00 on day-of-month 1 (https://ncrontab.swimburger.net/)
             log.LogInformation($"RatingViewerToArchiveFileJson Timer trigger function executed at: {DateTime.Now} to write file: {fileName}");
 
             var containerClient = _blobServiceClient.GetBlobContainerClient("output");
@@ -47,10 +47,10 @@ namespace RatingViewerToJson
         /// </summary>
         [FunctionName("RatingViewerToCurrentJson")]
         public async Task RunJsonAsync(
-            [TimerTrigger("0 12 1 * *", RunOnStartup = true)] TimerInfo t, ILogger log,
+            [TimerTrigger("0 0 12 1/7 * *", RunOnStartup = true)] TimerInfo t, ILogger log,
             [Blob("output/latest-sga-rating.json", FileAccess.Write)] BlockBlobClient blobClient)
         {
-            // At 12:00 on day-of-month 1 (https://crontab.guru/)
+            // At 12:00 on day-of-month 1 (https://ncrontab.swimburger.net/)
             log.LogInformation($"RatingViewerToCurrentJson Timer trigger function executed at: {DateTime.Now} to write latest-sga-rating.json");
 
             await SaveRatingToAzStorage(blobClient);
