@@ -1,4 +1,4 @@
-﻿# Azure timer functions that retrieve ratings from ratingviewer.nl and stores into azure storage.
+# Azure timer functions that retrieve ratings from ratingviewer.nl and stores into azure storage.
 
 Output: 
 
