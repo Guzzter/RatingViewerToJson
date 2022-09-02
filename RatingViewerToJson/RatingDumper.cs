@@ -11,7 +11,7 @@ namespace RatingViewerToJson
 {
     public partial class RatingDumper
     {
-        public static async Task Dump(Stream outputStream, int year, int month)
+        public static async Task Dump(Stream outputStream, int year, int month, bool isArchiveRun)
         {
             string clubId = "060004"; // This is my favorite chess club: Schaakgenootschap Amersfoort
 
@@ -21,6 +21,13 @@ namespace RatingViewerToJson
             // Call #1: Get all available lists. Key is listId
             var ratingLists = new Dictionary<int, MonthlyRatingListDetails>();
             await AddRatingLists(client, ratingLists, year, month);
+
+            //For latest rating, always use latest year/month available
+            if (!isArchiveRun && ratingLists.Any())
+            {
+                year = ratingLists.Values.Max(rl => rl.year);
+                month = ratingLists.Values.Where(rl => rl.year == year).Max(rl => rl.month);
+            }
 
             // Key is containing relationship nr
             var ratings = new Dictionary<int, Rating>();

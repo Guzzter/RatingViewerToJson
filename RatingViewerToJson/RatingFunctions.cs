@@ -33,7 +33,7 @@ namespace RatingViewerToJson
             var containerClient = _blobServiceClient.GetBlobContainerClient("output");
             var blobClient = containerClient.GetBlockBlobClient(fileName);
 
-            await SaveRatingToAzStorage(blobClient);
+            await SaveRatingToAzStorage(blobClient, true);
 
             // OLD CODE: works, but sets content type to application/octet-stream which results in no direct viewing (only download)
             // Add as param: IBinder binder
@@ -53,16 +53,19 @@ namespace RatingViewerToJson
             // At 12:00 on day-of-month 1 (https://ncrontab.swimburger.net/)
             log.LogInformation($"RatingViewerToCurrentJson Timer trigger function executed at: {DateTime.Now} to write latest-sga-rating.json");
 
-            await SaveRatingToAzStorage(blobClient);
+            await SaveRatingToAzStorage(blobClient, false);
         }
 
-        private static async Task SaveRatingToAzStorage(BlockBlobClient blobClient)
+        private static async Task SaveRatingToAzStorage(BlockBlobClient blobClient, bool isArchiveRun)
         {
             Stream dump = new MemoryStream();
-            await RatingDumper.Dump(dump, DateTime.UtcNow.Year, DateTime.UtcNow.Month);
+            await RatingDumper.Dump(dump, DateTime.UtcNow.Year, DateTime.UtcNow.Month, isArchiveRun);
             dump.Position = 0;
 
-            await blobClient.UploadAsync(dump, new BlobHttpHeaders { ContentType = "application/json" });
+            if (dump.Length > 0)
+            {
+                await blobClient.UploadAsync(dump, new BlobHttpHeaders { ContentType = "application/json" });
+            }
         }
     }
 }
